@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VES — Calculadora Binance Venezuela</title>
+    <meta name="description" content="Calculadora de comisiones Binance Venezuela. Compara Bpay vs P2P. Tasa BCV automática.">
+    <meta name="theme-color" content="#06090F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VES">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- LOGO COMO ICONO DE APP -->
+    <link rel="icon" type="image/jpeg" href="https://z-cdn-media.chatglm.cn/files/43cf73cb-ecdb-4284-8508-17d9f3d23340.jpg?auth_key=1880415808-f2b671b65c1e4198831a54af5fcf9406-0-74d631121730db8c312334d3d87416a8">
+    <link rel="apple-touch-icon" href="https://z-cdn-media.chatglm.cn/files/43cf73cb-ecdb-4284-8508-17d9f3d23340.jpg?auth_key=1880415808-f2b671b65c1e4198831a54af5fcf9406-0-74d631121730db8c312334d3d87416a8">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { outfit: ['Outfit','sans-serif'], dm: ['DM Sans','sans-serif'] } } }
+        }
+    </script>
+    <style>
+        :root {
+            --bg:#06090F; --surface:#0D1117; --card:rgba(13,17,23,0.85);
+            --border:rgba(255,255,255,0.06); --border-focus:rgba(16,185,129,0.5);
+            --green:#10B981; --green-glow:rgba(16,185,129,0.15);
+            --gold:#E8B931; --gold-glow:rgba(232,185,49,0.12);
+            --rose:#F43F5E; --teal:#14B8A6;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#F1F5F9;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+        .bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 600px 400px at 10% 15%,rgba(16,185,129,0.07),transparent),radial-gradient(ellipse 500px 500px at 85% 75%,rgba(20,184,166,0.05),transparent),radial-gradient(ellipse 400px 300px at 50% 50%,rgba(232,185,49,0.03),transparent)}
+        .bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at center,black 20%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,black 20%,transparent 70%)}
+
+        .orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+        .orb-1{width:320px;height:320px;background:rgba(16,185,129,0.10);top:-8%;left:-6%;animation:oA 28s ease-in-out infinite}
+        .orb-2{width:260px;height:260px;background:rgba(20,184,166,0.08);bottom:5%;right:-4%;animation:oB 32s ease-in-out infinite}
+        @keyframes oA{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,60px)}}
+        @keyframes oB{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-50px)}}
+
+        .card{background:var(--card);border:1px solid var(--border);border-radius:20px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:border-color .3s}
+        .card:hover{border-color:rgba(255,255,255,0.10)}
+
+        .field{background:rgba(6,9,15,0.6);border:1.5px solid var(--border);border-radius:14px;padding:15px 16px;color:#F1F5F9;font-family:'DM Sans',sans-serif;font-size:16px;width:100%;outline:none;transition:border-color .25s,box-shadow .25s}
+        .field:focus{border-color:var(--green);box-shadow:0 0 0 4px var(--green-glow)}
+        .field::placeholder{color:#475569}
+        .field:disabled{opacity:.6;cursor:not-allowed}
+
+        select.field{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+        select.field option{background:#1E293B;color:#F1F5F9}
+
+        .lbl{font-family:'Outfit',sans-serif;font-weight:600;font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:block}
+
+        .mod-wrap{display:flex;background:rgba(6,9,15,0.6);border:1.5px solid var(--border);border-radius:14px;padding:5px;position:relative}
+        .mod-opt{flex:1;padding:13px 16px;border-radius:11px;font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;text-align:center;cursor:pointer;color:#64748B;position:relative;z-index:2;transition:color .35s;user-select:none}
+        .mod-opt.on{color:#06090F}
+        .mod-pill{position:absolute;top:5px;height:calc(100% - 10px);width:calc(50% - 5px);background:linear-gradient(135deg,#34D399,#10B981);border-radius:11px;z-index:1;transition:transform .4s cubic-bezier(.4,0,.15,1)}
+        .mod-pill.right{transform:translateX(calc(100% + 5px))}
+
+        .btn-main{background:linear-gradient(135deg,#34D399,#10B981,#059669);color:#06090F;font-family:'Outfit',sans-serif;font-weight:800;font-size:16px;letter-spacing:.02em;padding:18px 32px;border-radius:14px;border:none;cursor:pointer;width:100%;position:relative;overflow:hidden;transition:transform .2s,box-shadow .3s}
+        .btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(16,185,129,0.35)}
+        .btn-main:active{transform:translateY(0)}
+        .btn-main .shine{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shine 3s infinite 1s}
+        @keyframes shine{0%{left:-100%}50%{left:100%}100%{left:100%}}
+
+        .hero-value{font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(42px,8vw,64px);line-height:1;background:linear-gradient(135deg,#F5D061 0%,#E8B931 40%,#D4A017 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+        .bar-track{height:10px;border-radius:5px;background:rgba(255,255,255,0.04);overflow:hidden}
+        .bar-fill{height:100%;border-radius:5px;transition:width 1s cubic-bezier(.4,0,.15,1)}
+
+        .cmp-track{height:36px;border-radius:10px;background:rgba(255,255,255,0.04)}
+        .cmp-fill{height:100%;border-radius:10px;display:flex;align-items:center;padding:0 14px;font-family:'Outfit',sans-serif;font-weight:800;font-size:13px;color:#06090F;transition:width 1s cubic-bezier(.4,0,.15,1);min-width:50px;white-space:nowrap}
+
+        .step-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);opacity:0;transform:translateY(6px);animation:stIn .35s ease forwards}
+        .step-row:last-child{border-bottom:none}
+        @keyframes stIn{to{opacity:1;transform:translateY(0)}}
+
+        .bank-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.03)}
+        .bank-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+        .metric-box{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:14px;text-align:center}
+
+        .tbl-row{transition:background .2s}.tbl-row:hover{background:rgba(255,255,255,0.02)}
+
+        .collapse-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.15,1)}
+        .collapse-body.open{max-height:500px}
+
+        .toast-el{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);background:#1E293B;color:#F1F5F9;padding:14px 24px;border-radius:14px;border:1px solid var(--border);font-size:14px;font-weight:500;z-index:9999;transition:transform .45s cubic-bezier(.4,0,.15,1);display:flex;align-items:center;gap:10px;box-shadow:0 16px 48px rgba(0,0,0,0.4)}
+        .toast-el.visible{transform:translateX(-50%) translateY(0)}
+
+        /* BCV Status Badge */
+        .bcv-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;font-family:'Outfit',sans-serif}
+        .bcv-live{background:rgba(16,185,129,0.1);color:#10B981}
+        .bcv-loading{background:rgba(232,185,49,0.1);color:#E8B931}
+        .bcv-error{background:rgba(244,63,94,0.1);color:#F43F5E}
+        .bcv-manual{background:rgba(148,163,184,0.1);color:#94A3B8}
+
+        .pulse-dot{width:7px;height:7px;border-radius:50%;background:#10B981;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+        /* Logo styling */
+        .app-logo{width:44px;height:44px;border-radius:12px;object-fit:cover;border:2px solid rgba(16,185,129,0.3)}
+
+        ::-webkit-scrollbar{width:5px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+        @media(max-width:640px){.orb{opacity:.5}}
+    </style>
+</head>
+<body>
+
+<div class="bg-mesh" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="orb orb-1" aria-hidden="true"></div>
+<div class="orb orb-2" aria-hidden="true"></div>
+
+<!-- ========== HEADER ========== -->
+<header class="relative z-10 px-4 sm:px-6 pt-5 pb-3">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <!-- LOGO DE GREEN HOUSE INVERSIONES -->
+            <img
+                src="https://z-cdn-media.chatglm.cn/files/43cf73cb-ecdb-4284-8508-17d9f3d23340.jpg?auth_key=1880415808-f2b671b65c1e4198831a54af5fcf9406-0-74d631121730db8c312334d3d87416a8"
+                alt="Green House Inversiones"
+                class="app-logo"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            >
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 items-center justify-center shadow-lg shadow-emerald-500/20" style="display:none">
+                <i class="fas fa-chart-line text-gray-900 text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-outfit font-900 text-xl tracking-tight leading-none">VES</h1>
+                <p class="text-[10px] text-slate-500 font-dm mt-0.5">Green House Inversiones</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="installBtn" class="hidden items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-outfit font-700 hover:bg-emerald-500/20 transition-all" onclick="installPWA()">
+                <i class="fas fa-download text-xs"></i> <span class="hidden sm:inline">Instalar</span> App
+            </button>
+            <button onclick="toggleInfo()" class="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-white/20 transition-all" aria-label="Información">
+                <i class="fas fa-circle-info"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- ========== INFO PANEL ========== -->
+<div id="infoPanel" class="collapse-body relative z-10 px-4 sm:px-6">
+    <div class="max-w-5xl mx-auto pb-3">
+        <div class="card p-5">
+            <div class="grid sm:grid-cols-2 gap-5 text-[13px] text-slate-400 leading-relaxed">
+                <div>
+                    <h3 class="font-outfit font-700 text-sm text-emerald-400 mb-2"><i class="fas fa-building-columns mr-1"></i> Bpay</h3>
+                    <p>Depositas VES desde tu banco a Binance mediante Bpay. Ellos aplican su tasa de cambio (con spread) y cobran una comisión de procesamiento. Luego conviertes a USDT en Spot pagando la fee de trading.</p>
+                </div>
+                <div>
+                    <h3 class="font-outfit font-700 text-sm text-teal-400 mb-2"><i class="fas fa-people-arrows mr-1"></i> P2P</h3>
+                    <p>Compras USDT directamente a un vendedor mediante transferencia. El precio P2P ya incluye el spread, pero no hay fee de Binance. Solo pagas la comisión de tu banco.</p>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-600 mt-4 pt-3 border-t border-white/5"><i class="fas fa-broadcast-tower mr-1 text-emerald-500"></i> La tasa BCV se obtiene automaticamente de <strong class="text-slate-400">ve.dolarapi.com</strong>. Si no esta disponible, puedes ingresarla manualmente.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MAIN ========== -->
+<main class="relative z-10 px-4 sm:px-6 pb-14">
+    <div class="max-w-5xl mx-auto">
+
+        <div class="text-center mb-8 mt-4">
+            <h2 class="font-outfit font-900 text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2">
+                Calculadora de <span class="bg-gradient-to-r from-emerald-300 via-emerald-400 to-teal-500 bg-clip-text text-transparent">Comisiones</span>
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto">Calcula cuántos USDT recibas al comprar divisas desde Venezuela a través de Binance.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-5 mb-8">
+
+            <!-- ===== INPUTS ===== -->
+            <div class="lg:col-span-2">
+                <div class="card p-5 sm:p-6 space-y-5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <i class="fas fa-sliders text-emerald-400 text-sm"></i>
+                        </div>
+                        <h3 class="font-outfit font-700 text-base">Parametros</h3>
+                    </div>
+
+                    <!-- Monto VES -->
+                    <div>
+                        <label class="lbl" for="montoVES">Monto en Bolivares</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-outfit font-700 text-sm">Bs</span>
+                            <input type="number" id="montoVES" class="field pl-12" placeholder="1 000,00" min="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Banco -->
+                    <div>
+                        <label class="lbl" for="bancoSel">Banco emisor</label>
+                        <select id="bancoSel" class="field"></select>
+                        <div id="bankBadge" class="mt-2 hidden">
+                            <span class="bank-pill"><span class="bank-dot" id="bDot"></span><span id="bComm" class="text-slate-400"></span></span>
+                        </div>
+                    </div>
+
+                    <!-- Modalidad -->
+                    <div>
+                        <label class="lbl">Modalidad</label>
+                        <div class="mod-wrap" role="radiogroup" aria-label="Modalidad de compra">
+                            <div class="mod-pill" id="modPill"></div>
+                            <div class="mod-opt on" id="optBpay" role="radio" aria-checked="true" tabindex="0" onclick="setMod('bpay')">
+                                <i class="fas fa-building-columns mr-1.5 text-xs"></i>Bpay
+                            </div>
+                            <div class="mod-opt" id="optP2p" role="radio" aria-checked="false" tabindex="0" onclick="setMod('p2p')">
+                                <i class="fas fa-people-arrows mr-1.5 text-xs"></i>P2P
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasa BCV — AUTO -->
+                    <div>
+                        <label class="lbl" for="tasaBCV">
+                            Tasa BCV
+                            <span id="bcvBadge" class="bcv-badge bcv-loading ml-2">
+                                <i class="fas fa-spinner fa-spin text-[9px]"></i> Consultando...
+                            </span>
+                        </label>
+                        <div class="flex gap-2">
+                            <div class="relative flex-1">
+                                <input type="number" id="tasaBCV" class="field pr-20" placeholder="—" min="0" step="0.01" disabled>
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-outfit font-600">VES/USD</span>
+                            </div>
+                            <button onclick="fetchBCV()" class="w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all flex-shrink-0" aria-label="Actualizar tasa BCV" title="Actualizar tasa BCV">
+                                <i class="fas fa-rotate"></i>
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-1" id="bcvHint">Obteniendo tasa automatica...</p>
+                        <!-- Tasa paralelo (referencia) -->
+                        <div id="paraleloInfo" class="mt-2 hidden">
+                            <span class="inline-flex items-center gap-1.5 text-[10px] text-slate-500 font-outfit">
+                                <i class="fas fa-chart-line text-teal-500 text-[8px]"></i>
+                                Paralelo: <strong id="paraleloVal" class="text-slate-400">—</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tasa Modalidad -->
+                    <div>
+                        <label class="lbl" for="tasaMod" id="lblTasaMod">Tasa Bpay</label>
+                        <div class="relative">
+                            <input type="number" id="tasaMod" class="field pr-20" placeholder="0.00" min="0" step="0.01">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-outfit font-600" id="sufTasaMod">VES/USD</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-1" id="hintTasa"></p>
+                    </div>
+
+                    <!-- Avanzadas -->
+                    <div>
+                        <button onclick="toggleAdv()" class="flex items-center gap-2 text-[10px] text-slate-500 hover:text-slate-300 transition-colors font-outfit font-600 uppercase tracking-wider">
+                            <i class="fas fa-chevron-right text-[9px] transition-transform duration-300" id="advChev"></i>
+                            Opciones avanzadas
+                        </button>
+                        <div id="advBody" class="collapse-body">
+                            <div class="pt-3 space-y-3" id="advFields"></div>
+                        </div>
+                    </div>
+
+                    <button class="btn-main" onclick="calcular()">
+                        <span class="shine"></span>
+                        <i class="fas fa-calculator mr-2"></i>Calcular
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== RESULTADOS ===== -->
+            <div class="lg:col-span-3 space-y-5">
+                <div class="card p-5 sm:p-6" id="resCard">
+                    <div id="stateEmpty" class="text-center py-16">
+                        <div class="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/5 flex items-center justify-center mx-auto mb-5">
+                            <i class="fas fa-arrow-left text-slate-700 text-3xl"></i>
+                        </div>
+                        <p class="font-outfit font-700 text-slate-500 text-lg">Sin resultados</p>
+                        <p class="text-sm text-slate-600 mt-1">Configura los parametros y presiona calcular</p>
+                    </div>
+                    <div id="stateData" class="hidden">
+                        <div class="text-center mb-7">
+                            <p class="text-xs text-slate-400 font-outfit font-600 uppercase tracking-widest mb-2">Recibiras aproximadamente</p>
+                            <div class="hero-value" id="valUSDT">0.0000</div>
+                            <p class="font-outfit font-800 text-xl text-amber-400 mt-1">USDT</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mb-6">
+                            <div class="metric-box">
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-outfit mb-1">Tasa efectiva</p>
+                                <p class="font-outfit font-800 text-sm" id="metTasa">—</p>
+                            </div>
+                            <div class="metric-box">
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-outfit mb-1">Comision total</p>
+                                <p class="font-outfit font-800 text-sm text-rose-400" id="metComm">—</p>
+                            </div>
+                            <div class="metric-box">
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-outfit mb-1">Costo/USDT</p>
+                                <p class="font-outfit font-800 text-sm" id="metCosto">—</p>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="flex justify-between text-[11px] text-slate-500 mb-1.5 font-outfit font-600">
+                                <span>Neto</span>
+                                <span id="barPctLabel">0% comisiones</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill bg-gradient-to-r from-emerald-500 to-emerald-400" id="barNet" style="width:0%"></div>
+                            </div>
+                            <div class="flex justify-between text-[11px] mt-1 font-dm">
+                                <span class="text-slate-500" id="barNetVal">Bs 0</span>
+                                <span class="text-rose-400" id="barFeeVal">Bs 0</span>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <h4 class="font-outfit font-700 text-xs text-slate-300 mb-2 flex items-center gap-2 uppercase tracking-wider">
+                                <i class="fas fa-list-ol text-emerald-400 text-[10px]"></i> Desglose
+                            </h4>
+                            <div id="stepsList"></div>
+                        </div>
+                        <button onclick="compartir()" class="w-full py-3 rounded-xl border border-white/8 text-sm text-slate-400 hover:text-white hover:border-white/15 transition-all font-outfit font-600 flex items-center justify-center gap-2">
+                            <i class="fas fa-share-nodes"></i> Compartir resultado
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card p-5 sm:p-6" id="cmpCard" style="display:none">
+                    <h4 class="font-outfit font-700 text-sm text-slate-300 mb-5 flex items-center gap-2">
+                        <i class="fas fa-scale-balanced text-teal-400 text-xs"></i>
+                        Comparacion Bpay vs P2P
+                    </h4>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-outfit font-600 text-sm flex items-center gap-2"><i class="fas fa-building-columns text-amber-400 text-xs"></i> Bpay</span>
+                                <span class="font-outfit font-800 text-sm" id="cmpBpay">0 USDT</span>
+                            </div>
+                            <div class="cmp-track">
+                                <div class="cmp-fill bg-gradient-to-r from-amber-400 to-amber-500" id="cmpBarBpay" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-outfit font-600 text-sm flex items-center gap-2"><i class="fas fa-people-arrows text-teal-400 text-xs"></i> P2P</span>
+                                <span class="font-outfit font-800 text-sm" id="cmpP2p">0 USDT</span>
+                            </div>
+                            <div class="cmp-track">
+                                <div class="cmp-fill bg-gradient-to-r from-teal-400 to-teal-500" id="cmpBarP2p" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div id="cmpRecArea" class="pt-3 border-t border-white/5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA BANCOS -->
+        <div class="card p-5 sm:p-6">
+            <h4 class="font-outfit font-700 text-base mb-4 flex items-center gap-2">
+                <i class="fas fa-landmark text-emerald-400 text-sm"></i>
+                Comisiones por banco
+            </h4>
+            <div class="overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6">
+                <table class="w-full text-sm min-w-[420px]">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="text-left py-3 px-2 font-outfit font-600 text-slate-400 text-[11px] uppercase tracking-wider">Banco</th>
+                            <th class="text-right py-3 px-2 font-outfit font-600 text-slate-400 text-[11px] uppercase tracking-wider">Comision %</th>
+                            <th class="text-right py-3 px-2 font-outfit font-600 text-slate-400 text-[11px] uppercase tracking-wider">Fee fija</th>
+                            <th class="text-right py-3 px-2 font-outfit font-600 text-slate-400 text-[11px] uppercase tracking-wider">Ej. Bs 1.000</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblBancos"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="relative z-10 px-4 sm:px-6 py-5 border-t border-white/5">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p class="text-[11px] text-slate-600 text-center sm:text-left">Comisiones y tasas son referenciales. Verifica siempre los valores actuales en Binance.</p>
+        <p class="text-[11px] text-slate-700 font-outfit font-600">Green House Inversiones — VES v2.0</p>
+    </div>
+</footer>
+
+<div id="toast" class="toast-el" role="alert">
+    <i class="fas fa-check-circle text-emerald-400" id="toastIcon"></i>
+    <span id="toastMsg">Listo</span>
+</div>
+
+<script>
+// ============================================================
+// BANCOS
+// ============================================================
+const BANCOS = [
+    { id:'banesco',      nombre:'Banesco',           color:'#FF6B00', cpct:0.30, cfija:0.50 },
+    { id:'bdv',          nombre:'Banco de Venezuela', color:'#FFD700', cpct:0.25, cfija:0.40 },
+    { id:'mercantil',    nombre:'Mercantil',          color:'#2196F3', cpct:0.35, cfija:0.50 },
+    { id:'provincial',   nombre:'Provincial',         color:'#E31937', cpct:0.30, cfija:0.45 },
+    { id:'bnc',          nombre:'BNC',                color:'#00A650', cpct:0.40, cfija:0.50 },
+    { id:'bicentenario', nombre:'Bicentenario',       color:'#CF0A2C', cpct:0.30, cfija:0.40 },
+    { id:'bancamiga',    nombre:'Bancamiga',          color:'#F7941D', cpct:0.35, cfija:0.50 },
+    { id:'bod',          nombre:'BOD',                color:'#0033A0', cpct:0.30, cfija:0.45 },
+    { id:'exterior',     nombre:'Exterior',           color:'#0096D6', cpct:0.35, cfija:0.50 },
+    { id:'caroni',       nombre:'Banco Caroní',       color:'#8B5E3C', cpct:0.40, cfija:0.50 },
+];
+
+// ============================================================
+// ESTADO
+// ============================================================
+let mod = 'bpay';
+let lastRes = null;
+let lastCmp = null;
+let deferredPrompt = null;
+let bcvManuallyEdited = false;
+
+// URL del logo (reemplazar con URL permanente cuando lo hospedes)
+const LOGO_URL = 'https://z-cdn-media.chatglm.cn/files/43cf73cb-ecdb-4284-8508-17d9f3d23340.jpg?auth_key=1880415808-f2b671b65c1e4198831a54af5fcf9406-0-74d631121730db8c312334d3d87416a8';
+
+// ============================================================
+// PWA
+// ============================================================
+(function initPWA() {
+    const manifest = {
+        name: 'VES — Calculadora Binance Venezuela',
+        short_name: 'VES',
+        description: 'Calculadora de comisiones Binance Venezuela por Green House Inversiones',
+        start_url: location.href,
+        display: 'standalone',
+        background_color: '#06090F',
+        theme_color: '#06090F',
+        orientation: 'any',
+        icons: [
+            { src: LOGO_URL, sizes: '192x192', type: 'image/jpeg', purpose: 'any maskable' },
+            { src: LOGO_URL, sizes: '512x512', type: 'image/jpeg', purpose: 'any maskable' }
+        ]
+    };
+    const mBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const mUrl = URL.createObjectURL(mBlob);
+    const link = document.createElement('link');
+    link.rel = 'manifest'; link.href = mUrl;
+    document.head.appendChild(link);
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.getElementById('installBtn');
+        if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); }
+    });
+})();
+
+function installPWA() {
+    if (!deferredPrompt) {
+        toast('Abre este sitio en Chrome/Safari y selecciona "Agregar a pantalla de inicio"', 'warn');
+        return;
+    }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+        deferredPrompt = null;
+        const btn = document.getElementById('installBtn');
+        if (btn) { btn.classList.add('hidden'); btn.classList.remove('flex'); }
+    });
+}
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    fillBancos();
+    fillTabla();
+    updateAdvFields();
+    updateBankBadge();
+
+    document.getElementById('bancoSel').addEventListener('change', updateBankBadge);
+
+    // Detectar edición manual de BCV
+    document.getElementById('tasaBCV').addEventListener('input', () => {
+        bcvManuallyEdited = true;
+        updateTasaMod();
+        setBCVBadge('manual');
+    });
+
+    document.querySelectorAll('.field').forEach(f => {
+        f.addEventListener('keydown', e => { if (e.key === 'Enter') calcular(); });
+    });
+
+    // Auto-obtener tasa BCV al cargar
+    fetchBCV();
+});
+
+function fillBancos() {
+    const sel = document.getElementById('bancoSel');
+    BANCOS.forEach(b => {
+        const o = document.createElement('option');
+        o.value = b.id; o.textContent = b.nombre;
+        sel.appendChild(o);
+    });
+}
+
+function fillTabla() {
+    document.getElementById('tblBancos').innerHTML = BANCOS.map(b => {
+        const ej = (1000 * b.cpct / 100) + b.cfija;
+        return `<tr class="tbl-row border-b border-white/[0.03]">
+            <td class="py-3 px-2"><span class="flex items-center gap-2.5"><span class="bank-dot" style="background:${b.color}"></span><span class="font-outfit font-500">${b.nombre}</span></span></td>
+            <td class="text-right py-3 px-2 font-dm text-slate-400">${b.cpct.toFixed(2)}%</td>
+            <td class="text-right py-3 px-2 font-dm text-slate-400">Bs ${b.cfija.toFixed(2)}</td>
+            <td class="text-right py-3 px-2 font-dm text-rose-400">Bs ${ej.toFixed(2)}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ============================================================
+// TASA BCV AUTOMÁTICA
+// ============================================================
+async function fetchBCV() {
+    const input = document.getElementById('tasaBCV');
+    const hint = document.getElementById('bcvHint');
+    const badge = document.getElementById('bcvBadge');
+    const parInfo = document.getElementById('paraleloInfo');
+
+    setBCVBadge('loading');
+    hint.textContent = 'Consultando tasa oficial...';
+
+    try {
+        // API principal: ve.dolarapi.com (soporta CORS)
+        const res = await fetch('https://ve.dolarapi.com/v1/dolares');
+        if (!res.ok) throw new Error('API error ' + res.status);
+        const data = await res.json();
+
+        // Buscar la tasa oficial (BCV)
+        let oficial = null;
+        let paralelo = null;
+
+        if (Array.isArray(data)) {
+            oficial = data.find(d => d.fuente === 'oficial' || d.nombre === 'Oficial');
+            paralelo = data.find(d => d.fuente === 'paralelo' || d.nombre === 'Paralelo');
+        }
+
+        if (oficial && (oficial.promedio || oficial.venta)) {
+            const rate = oficial.promedio || oficial.venta;
+            input.disabled = false;
+            input.value = rate.toFixed(2);
+            bcvManuallyEdited = false;
+
+            // Mostrar fecha de actualización
+            const fechaStr = oficial.fechaActualizacion
+                ? formatFecha(oficial.fechaActualizacion)
+                : 'ahora';
+            hint.textContent = `Ultima actualizacion: ${fechaStr}`;
+
+            setBCVBadge('live');
+
+            // Mostrar paralelo como referencia
+            if (paralelo && (paralelo.promedio || paralelo.venta)) {
+                const pRate = paralelo.promedio || paralelo.venta;
+                parInfo.classList.remove('hidden');
+                document.getElementById('paraleloVal').textContent = pRate.toFixed(2) + ' VES/USD';
+            }
+
+            updateTasaMod();
+            toast('Tasa BCV cargada: ' + rate.toFixed(2), 'ok');
+            return;
+        }
+
+        throw new Error('No se encontro tasa oficial');
+
+    } catch (e1) {
+        console.warn('API primaria fallo:', e1.message);
+
+        // Intentar API alternativa
+        try {
+            const res2 = await fetch('https://pydolarve.org/api/v1/dollar?page=bcv');
+            if (!res2.ok) throw new Error('API2 error');
+            const data2 = await res2.json();
+
+            // Estructura: data2.tasa || data2.bcv || etc.
+            let rate = null;
+            if (data2.bcv && data2.bcv.valor) rate = data2.bcv.valor;
+            else if (data2.tasa) rate = data2.tasa;
+            else if (data2.valor) rate = data2.valor;
+
+            if (rate) {
+                input.disabled = false;
+                input.value = parseFloat(rate).toFixed(2);
+                bcvManuallyEdited = false;
+                hint.textContent = 'Tasa obtenida de fuente alternativa';
+                setBCVBadge('live');
+                updateTasaMod();
+                toast('Tasa BCV cargada: ' + parseFloat(rate).toFixed(2), 'ok');
+                return;
+            }
+            throw new Error('No se pudo parsear');
+        } catch (e2) {
+            console.warn('API alternativa fallo:', e2.message);
+            input.disabled = false;
+            input.focus();
+            setBCVBadge('error');
+            hint.textContent = 'No disponible — ingresa la tasa manualmente y presiona Enter';
+            toast('No se pudo obtener la tasa BCV automaticamente', 'err');
+        }
+    }
+}
+
+function setBCVBadge(state) {
+    const badge = document.getElementById('bcvBadge');
+    const map = {
+        loading: { cls: 'bcv-loading', html: '<i class="fas fa-spinner fa-spin text-[9px]"></i> Consultando...' },
+        live:    { cls: 'bcv-live',    html: '<span class="pulse-dot"></span> En vivo' },
+        error:   { cls: 'bcv-error',   html: '<i class="fas fa-exclamation-circle text-[9px]"></i> Sin conexion' },
+        manual:  { cls: 'bcv-manual',  html: '<i class="fas fa-pen text-[9px]"></i> Manual' },
+    };
+    const s = map[state] || map.error;
+    badge.className = 'bcv-badge ' + s.cls + ' ml-2';
+    badge.innerHTML = s.html;
+}
+
+function formatFecha(isoStr) {
+    try {
+        const d = new Date(isoStr);
+        const dia = d.getDate().toString().padStart(2, '0');
+        const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+        const hora = d.getHours().toString().padStart(2, '0');
+        const min = d.getMinutes().toString().padStart(2, '0');
+        return `${dia}/${mes} ${hora}:${min}`;
+    } catch { return '—'; }
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function updateBankBadge() {
+    const b = BANCOS.find(x => x.id === document.getElementById('bancoSel').value);
+    const wrap = document.getElementById('bankBadge');
+    if (b) {
+        wrap.classList.remove('hidden');
+        document.getElementById('bDot').style.background = b.color;
+        document.getElementById('bComm').textContent = `${b.cpct.toFixed(2)}% + Bs ${b.cfija.toFixed(2)}`;
+    }
+}
+
+function setMod(m) {
+    mod = m;
+    document.getElementById('modPill').classList.toggle('right', m === 'p2p');
+    document.getElementById('optBpay').classList.toggle('on', m === 'bpay');
+    document.getElementById('optP2p').classList.toggle('on', m === 'p2p');
+    document.getElementById('optBpay').setAttribute('aria-checked', m === 'bpay');
+    document.getElementById('optP2p').setAttribute('aria-checked', m === 'p2p');
+    document.getElementById('lblTasaMod').textContent = m === 'bpay' ? 'Tasa Bpay' : 'Tasa P2P';
+    document.getElementById('sufTasaMod').textContent = m === 'bpay' ? 'VES/USD' : 'VES/USDT';
+    updateTasaMod();
+    updateAdvFields();
+}
+
+function updateTasaMod() {
+    const bcv = parseFloat(document.getElementById('tasaBCV').value) || 0;
+    const input = document.getElementById('tasaMod');
+    const hint = document.getElementById('hintTasa');
+    if (mod === 'bpay') {
+        const sp = getAdvVal('advSpread', 1.50);
+        const est = bcv * (1 + sp / 100);
+        input.value = est ? est.toFixed(2) : '';
+        hint.textContent = `Estimada: ${sp.toFixed(2)}% sobre BCV`;
+    } else {
+        const sp = getAdvVal('advSpreadP2P', 2.50);
+        const est = bcv * (1 + sp / 100);
+        input.value = est ? est.toFixed(2) : '';
+        hint.textContent = `Estimada: ${sp.toFixed(2)}% sobre BCV`;
+    }
+}
+
+function getAdvVal(id, fb) {
+    const el = document.getElementById(id);
+    return el ? (parseFloat(el.value) || fb) : fb;
+}
+
+function updateAdvFields() {
+    const w = document.getElementById('advFields');
+    if (mod === 'bpay') {
+        w.innerHTML = `<div class="grid grid-cols-3 gap-2">
+            <div><label class="lbl text-[10px]">Spread %</label><input type="number" id="advSpread" class="field text-sm py-2" value="1.50" min="0" step="0.01" oninput="updateTasaMod()"></div>
+            <div><label class="lbl text-[10px]">Fee Bpay %</label><input type="number" id="advFeeBpay" class="field text-sm py-2" value="0.80" min="0" step="0.01"></div>
+            <div><label class="lbl text-[10px]">Trading %</label><input type="number" id="advTrading" class="field text-sm py-2" value="0.10" min="0" step="0.01"></div>
+        </div>`;
+    } else {
+        w.innerHTML = `<div class="grid grid-cols-2 gap-2">
+            <div><label class="lbl text-[10px]">Spread P2P %</label><input type="number" id="advSpreadP2P" class="field text-sm py-2" value="2.50" min="0" step="0.01" oninput="updateTasaMod()"></div>
+            <div><label class="lbl text-[10px]">Fee fija P2P (Bs)</label><input type="number" id="advFeeP2PFija" class="field text-sm py-2" value="0.00" min="0" step="0.01"></div>
+        </div>`;
+    }
+}
+
+function toggleAdv() {
+    document.getElementById('advBody').classList.toggle('open');
+    document.getElementById('advChev').style.transform =
+        document.getElementById('advBody').classList.contains('open') ? 'rotate(90deg)' : '';
+}
+function toggleInfo() { document.getElementById('infoPanel').classList.toggle('open'); }
+
+// ============================================================
+// CÁLCULOS
+// ============================================================
+function calcular() {
+    const monto = parseFloat(document.getElementById('montoVES').value);
+    if (!monto || monto <= 0) { toast('Ingresa un monto en Bolivares', 'warn'); return; }
+    const banco = BANCOS.find(b => b.id === document.getElementById('bancoSel').value);
+    const bcv = parseFloat(document.getElementById('tasaBCV').value) || 0;
+    const tMod = parseFloat(document.getElementById('tasaMod').value) || 0;
+    if (!bcv || bcv <= 0) { toast('Ingresa la tasa BCV para continuar', 'warn'); return; }
+    if (!tMod || tMod <= 0) { toast('Verifica la tasa de Bpay/P2P', 'warn'); return; }
+
+    const res = mod === 'bpay' ? calcBpay(monto, banco, bcv, tMod) : calcP2P(monto, banco, bcv, tMod);
+    lastRes = res;
+    showResults(res);
+
+    // Comparación
+    const otroTasa = mod === 'bpay'
+        ? bcv * (1 + getAdvVal('advSpreadP2P', 2.50) / 100)
+        : bcv * (1 + getAdvVal('advSpread', 1.50) / 100);
+    const otro = mod === 'bpay'
+        ? calcP2P(monto, banco, bcv, otroTasa)
+        : calcBpay(monto, banco, bcv, otroTasa);
+    lastCmp = { bpay: mod === 'bpay' ? res : otro, p2p: mod === 'p2p' ? res : otro };
+    showCompare(lastCmp);
+}
+
+function calcBpay(monto, banco, bcv, tasaBpay) {
+    const feeBpay = getAdvVal('advFeeBpay', 0.80);
+    const feeTrd = getAdvVal('advTrading', 0.10);
+    const commBanco = (monto * banco.cpct / 100) + banco.cfija;
+    const netoBanco = monto - commBanco;
+    const usdBruto = netoBanco / tasaBpay;
+    const commBpay = usdBruto * feeBpay / 100;
+    const usdNetBpay = usdBruto - commBpay;
+    const feeTrading = usdNetBpay * feeTrd / 100;
+    const usdtFinal = usdNetBpay - feeTrading;
+    const valorBCV = usdtFinal * bcv;
+    const commTotalVES = monto - valorBCV;
+    const commTotalPct = (commTotalVES / monto) * 100;
+    const tasaEfectiva = monto / usdtFinal;
+    const costoUSDT = commTotalVES / usdtFinal;
+    return {
+        mod:'bpay', monto, commBanco, netoBanco, tasaBpay,
+        usdBruto, commBpay, usdNetBpay, feeTrading, usdtFinal,
+        commTotalVES, commTotalPct, tasaEfectiva, costoUSDT, valorBCV,
+        steps:[
+            {l:'Monto original',v:monto,s:'VES',t:'start'},
+            {l:'Comisión bancaria',v:-commBanco,s:'VES',t:'neg'},
+            {l:'Neto bancario',v:netoBanco,s:'VES',t:'mid'},
+            {l:`Conversión (${tasaBpay.toFixed(2)})`,v:usdBruto,s:'USD',t:'mid'},
+            {l:`Fee Bpay (${feeBpay}%)`,v:-commBpay,s:'USD',t:'neg'},
+            {l:'Subtotal',v:usdNetBpay,s:'USD',t:'mid'},
+            {l:`Trading fee (${feeTrd}%)`,v:-feeTrading,s:'USD',t:'neg'},
+            {l:'USDT recibidos',v:usdtFinal,s:'USDT',t:'end'},
+        ]
+    };
+}
+
+function calcP2P(monto, banco, bcv, tasaP2P) {
+    const commBanco = (monto * banco.cpct / 100) + banco.cfija;
+    const netoBanco = monto - commBanco;
+    const usdtFinal = netoBanco / tasaP2P;
+    const valorBCV = usdtFinal * bcv;
+    const commTotalVES = monto - valorBCV;
+    const commTotalPct = (commTotalVES / monto) * 100;
+    const tasaEfectiva = monto / usdtFinal;
+    const costoUSDT = commTotalVES / usdtFinal;
+    return {
+        mod:'p2p', monto, commBanco, netoBanco, tasaP2P,
+        usdtFinal, commTotalVES, commTotalPct, tasaEfectiva,
+        costoUSDT, valorBCV,
+        steps:[
+            {l:'Monto original',v:monto,s:'VES',t:'start'},
+            {l:'Comisión bancaria',v:-commBanco,s:'VES',t:'neg'},
+            {l:'Neto bancario',v:netoBanco,s:'VES',t:'mid'},
+            {l:`Conversión P2P (${tasaP2P.toFixed(2)})`,v:usdtFinal,s:'USDT',t:'mid'},
+            {l:'USDT recibidos',v:usdtFinal,s:'USDT',t:'end'},
+        ]
+    };
+}
+
+// ============================================================
+// MOSTRAR RESULTADOS
+// ============================================================
+function showResults(r) {
+    document.getElementById('stateEmpty').classList.add('hidden');
+    document.getElementById('stateData').classList.remove('hidden');
+    animNum('valUSDT', r.usdtFinal, 4, 700);
+    document.getElementById('metTasa').textContent = r.tasaEfectiva.toFixed(2);
+    document.getElementById('metComm').textContent = r.commTotalPct.toFixed(2) + '%';
+    document.getElementById('metCosto').textContent = 'Bs ' + r.costoUSDT.toFixed(2);
+    const netPct = (r.valorBCV / r.monto) * 100;
+    const feePct = 100 - netPct;
+    setTimeout(() => { document.getElementById('barNet').style.width = Math.max(0, netPct) + '%'; }, 80);
+    document.getElementById('barPctLabel').textContent = feePct.toFixed(2) + '% comisiones';
+    document.getElementById('barNetVal').textContent = 'Bs ' + r.valorBCV.toFixed(2);
+    document.getElementById('barFeeVal').textContent = 'Bs ' + r.commTotalVES.toFixed(2);
+
+    document.getElementById('stepsList').innerHTML = r.steps.map((s, i) => {
+        const icons = {start:'fa-wallet',neg:'fa-minus-circle',mid:'fa-arrow-right',end:'fa-circle-check'};
+        const cols = {start:'text-emerald-400',neg:'text-rose-400',mid:'text-slate-500',end:'text-emerald-400'};
+        const bgs = {start:'bg-emerald-500/10',neg:'bg-rose-500/10',mid:'bg-white/5',end:'bg-emerald-500/10'};
+        const vc = {start:'text-slate-200',neg:'text-rose-400',mid:'text-slate-300',end:'text-emerald-400'};
+        const wt = {start:'font-600',neg:'font-500',mid:'font-500',end:'font-800'};
+        const p = s.v < 0 ? '−' : '';
+        const a = Math.abs(s.v);
+        const f = a >= 1 ? a.toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}) : a.toFixed(4);
+        return `<div class="step-row" style="animation-delay:${i*0.06}s">
+            <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-lg ${bgs[s.t]} flex items-center justify-center flex-shrink-0"><i class="fas ${icons[s.t]} ${cols[s.t]} text-xs"></i></div>
+                <span class="text-sm ${s.t==='end'||s.t==='start'?'text-slate-200':'text-slate-400'}">${s.l}</span>
+            </div>
+            <span class="font-outfit ${wt[s.t]} ${vc[s.t]} text-sm whitespace-nowrap">${p}${f} <span class="text-[10px] text-slate-500">${s.s}</span></span>
+        </div>`;
+    }).join('');
+}
+
+function showCompare(c) {
+    document.getElementById('cmpCard').style.display = '';
+    const mx = Math.max(c.bpay.usdtFinal, c.p2p.usdtFinal, 0.0001);
+    document.getElementById('cmpBpay').textContent = c.bpay.usdtFinal.toFixed(4) + ' USDT';
+    document.getElementById('cmpP2p').textContent = c.p2p.usdtFinal.toFixed(4) + ' USDT';
+    setTimeout(() => {
+        document.getElementById('cmpBarBpay').style.width = (c.bpay.usdtFinal / mx * 100) + '%';
+        document.getElementById('cmpBarP2p').style.width = (c.p2p.usdtFinal / mx * 100) + '%';
+    }, 120);
+    const diff = Math.abs(c.bpay.usdtFinal - c.p2p.usdtFinal);
+    const bcv = parseFloat(document.getElementById('tasaBCV').value) || 36.50;
+    const diffVES = diff * bcv;
+    const mejor = c.bpay.usdtFinal >= c.p2p.usdtFinal ? 'bpay' : 'p2p';
+    const label = mejor === 'bpay' ? 'Bpay' : 'P2P';
+    const ic = mejor === 'bpay' ? 'fa-building-columns' : 'fa-people-arrows';
+    const cls = mejor === 'bpay' ? 'bg-amber-500/10 text-amber-400' : 'bg-teal-500/10 text-teal-400';
+    document.getElementById('cmpRecArea').innerHTML = diff < 0.0001
+        ? '<p class="text-center text-sm text-slate-400 font-outfit py-2">Ambas opciones son prácticamente iguales</p>'
+        : `<div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full ${cls} font-outfit font-700 text-xs uppercase tracking-wider"><i class="fas ${ic}"></i> Mejor opcion: ${label}</span>
+            <span class="text-sm text-slate-400">Ahorro de <strong class="text-emerald-400">${diff.toFixed(4)} USDT</strong> (Bs ${diffVES.toFixed(2)})</span>
+        </div>`;
+}
+
+function animNum(id, end, dec, dur) {
+    const el = document.getElementById(id);
+    const t0 = performance.now();
+    (function tick(now) {
+        const p = Math.min((now - t0) / dur, 1);
+        const e = 1 - Math.pow(1 - p, 3);
+        el.textContent = (end * e).toFixed(dec);
+        if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+}
+
+// ============================================================
+// COMPARTIR
+// ============================================================
+function compartir() {
+    if (!lastRes) return;
+    const r = lastRes;
+    const b = BANCOS.find(x => x.id === document.getElementById('bancoSel').value);
+    const ml = r.mod === 'bpay' ? 'Bpay' : 'P2P';
+    const sep = '─'.repeat(32);
+    let t = `VES — Green House Inversiones\nBinance Venezuela\n${sep}\n`;
+    t += `Monto: Bs ${r.monto.toFixed(2)}\nBanco: ${b.nombre}\nModalidad: ${ml}\n`;
+    t += `Tasa BCV: ${(parseFloat(document.getElementById('tasaBCV').value)||0).toFixed(2)}\n${sep}\n`;
+    r.steps.forEach(s => {
+        const p = s.v < 0 ? '-' : '';
+        const a = Math.abs(s.v);
+        t += `${s.l}: ${p}${a>=1?a.toFixed(2):a.toFixed(4)} ${s.s}\n`;
+    });
+    t += `${sep}\nComisión total: ${r.commTotalPct.toFixed(2)}% (Bs ${r.commTotalVES.toFixed(2)})\n`;
+    t += `Tasa efectiva: ${r.tasaEfectiva.toFixed(2)} VES/USDT\n`;
+    if (lastCmp) { const m = lastCmp.bpay.usdtFinal >= lastCmp.p2p.usdtFinal ? 'Bpay' : 'P2P'; t += `\nMejor opción: ${m}`; }
+    navigator.clipboard.writeText(t).then(() => toast('Resultado copiado', 'ok')).catch(() => toast('No se pudo copiar', 'err'));
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type) {
+    const el = document.getElementById('toast');
+    const ic = document.getElementById('toastIcon');
+    document.getElementById('toastMsg').textContent = msg;
+    ic.className = type === 'ok' ? 'fas fa-check-circle text-emerald-400'
+        : type === 'warn' ? 'fas fa-exclamation-triangle text-amber-400'
+        : 'fas fa-times-circle text-rose-400';
+    el.classList.add('visible');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('visible'), 3500);
+}
+</script>
+</body>
+</html>
